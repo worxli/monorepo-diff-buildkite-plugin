@@ -46,6 +46,9 @@ function add_action_command() {
   command=$(read_pipeline_config "$pipeline_index" "COMMAND")
 
   pipeline_yml+=("  - command: ${command}")
+  
+  add_label "$(read_pipeline_config "$pipeline_index" "LABEL")"
+  add_agents "$pipeline_index"
 }
 
 function add_action_trigger() {
@@ -71,6 +74,24 @@ function add_label() {
   if [[ -n $label ]]; then
     pipeline_yml+=("    label: ${label}")
   fi
+}
+
+function add_agents() {
+  local agents=$1
+
+  if [[ -n $agents ]]; then
+    pipeline_yml+=("    agents:")
+  fi
+}
+
+function add_build() {
+  local pipeline=$1
+
+  pipeline_yml+=("    build:")
+  add_build_commit "$(read_pipeline_config "$pipeline" "BUILD_COMMIT")"
+  add_build_message "$(read_pipeline_config "$pipeline" "BUILD_MESSAGE")"
+  add_build_branch "$(read_pipeline_config "$pipeline" "BUILD_BRANCH")"
+  add_build_env "$pipeline"
 }
 
 function add_async() {
