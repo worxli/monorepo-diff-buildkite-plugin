@@ -76,22 +76,42 @@ function add_label() {
   fi
 }
 
-function add_agents() {
-  local agents=$1
+function read_pipeline_agents) {
+  local pipeline_index=$1
+  local prefix="BUILDKITE_PLUGIN_MONOREPO_DIFF_WATCH_${pipeline_index}_CONFIG_AGENTS"
+  local parameter="${prefix}_0"
 
-  if [[ -n $agents ]]; then
-    pipeline_yml+=("    agents:")
+  if [[ -n "${!parameter:-}" ]]; then
+    local i=0
+    local parameter="${prefix}_${i}"
+    while [[ -n "${!parameter:-}" ]]; do
+      echo "${!parameter}"
+      i=$((i+1))
+      parameter="${prefix}_${i}"
+    done
   fi
 }
 
-function add_build() {
+function add_agents() {
   local pipeline=$1
 
-  pipeline_yml+=("    build:")
-  add_build_commit "$(read_pipeline_config "$pipeline" "BUILD_COMMIT")"
-  add_build_message "$(read_pipeline_config "$pipeline" "BUILD_MESSAGE")"
-  add_build_branch "$(read_pipeline_config "$pipeline" "BUILD_BRANCH")"
-  add_build_env "$pipeline"
+  pipeline_yml+=("    agents:")
+
+  local agents
+  local agent_conf
+  agents=$(read_pipeline_agents "$pipeline")
+
+  if [[ -n "$agents" ]]; then
+    pipeline_yml+=("    agents:")
+    while IFS=$'\n' read -r agents ; do
+      IFS='=' read -r key value <<< "$agent_conf"
+      if [[ -n "$value" ]]; then
+        pipeline_yml+=("        ${key}: ${value}")
+      else
+        pipeline_yml+=("        ${key}: ${!key}")
+      fi
+    done <<< "$build_envs"
+  fi
 }
 
 function add_async() {
