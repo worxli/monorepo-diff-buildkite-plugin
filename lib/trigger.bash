@@ -110,7 +110,7 @@ function add_agents() {
       else
         pipeline_yml+=("        ${key}: ${!key}")
       fi
-    done <<< "$build_envs"
+    done <<< "$agents"
   fi
 }
 
