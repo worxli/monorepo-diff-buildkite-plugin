@@ -14,7 +14,7 @@ all: quality test
 
 .PHONY: test
 test:
-	go test -race -coverprofile=coverage.out -covermode=atomic
+	go test ./... -race -coverprofile=coverage.out -covermode=atomic
 ifneq (${HAS_DOCKER},)
 	docker-compose run --rm plugin_test
 endif

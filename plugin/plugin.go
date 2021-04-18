@@ -1,11 +1,9 @@
-package main
+package plugin
 
 import (
 	"encoding/json"
 	"errors"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 )
 
 const pluginName = "github.com/chronotc/monorepo-diff"
@@ -61,14 +59,11 @@ type Build struct {
 	Env     map[string]string `yaml:"env,omitempty"`
 }
 
-func initializePlugin(data string) (Plugin, error) {
+func InitializePlugin(data string) (Plugin, error) {
 	var plugins []map[string]Plugin
-
 	err := json.Unmarshal([]byte(data), &plugins)
-
 	if err != nil {
-		log.Debug(err)
-		return Plugin{}, errors.New("Failed to parse plugin configuration")
+		return Plugin{}, errors.New("failed to parse plugin configuration")
 	}
 
 	for _, p := range plugins {
@@ -79,7 +74,7 @@ func initializePlugin(data string) (Plugin, error) {
 		}
 	}
 
-	return Plugin{}, errors.New("Could not initialize plugin")
+	return Plugin{}, errors.New("could not initialize plugin")
 }
 
 // UnmarshalJSON set defaults properties

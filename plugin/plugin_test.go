@@ -1,21 +1,22 @@
-package main
+package plugin_test
 
 import (
 	"testing"
 
+	plg "github.com/chronotc/monorepo-diff-buildkite-plugin/plugin"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPluginWithEmptyParameter(t *testing.T) {
-	_, err := initializePlugin("[]")
+	_, err := plg.InitializePlugin("[]")
 
-	assert.EqualError(t, err, "Could not initialize plugin")
+	assert.EqualError(t, err, "could not initialize plugin")
 }
 
 func TestPluginWithInvalidParameter(t *testing.T) {
-	_, err := initializePlugin("invalid")
+	_, err := plg.InitializePlugin("invalid")
 
-	assert.EqualError(t, err, "Failed to parse plugin configuration")
+	assert.EqualError(t, err, "failed to parse plugin configuration")
 }
 
 func TestPluginShouldHaveDefaultValues(t *testing.T) {
@@ -23,9 +24,9 @@ func TestPluginShouldHaveDefaultValues(t *testing.T) {
 		"github.com/chronotc/monorepo-diff-buildkite-plugin#commit": {}
 	}]`
 
-	got, _ := initializePlugin(param)
+	got, _ := plg.InitializePlugin(param)
 
-	expected := Plugin{
+	expected := plg.Plugin{
 		Diff:          "git diff --name-only HEAD~1",
 		Wait:          false,
 		LogLevel:      "info",
@@ -37,8 +38,8 @@ func TestPluginShouldHaveDefaultValues(t *testing.T) {
 
 func TestPluginWithValidParameter(t *testing.T) {
 	param := ""
-	got, _ := initializePlugin(param)
-	expected := Plugin{}
+	got, _ := plg.InitializePlugin(param)
+	expected := plg.Plugin{}
 
 	assert.Equal(t, expected, got)
 }
@@ -107,14 +108,14 @@ func TestPluginShouldUnmarshallCorrectly(t *testing.T) {
 		}
 	}]`
 
-	got, _ := initializePlugin(param)
+	got, _ := plg.InitializePlugin(param)
 
-	expected := Plugin{
+	expected := plg.Plugin{
 		Diff:          "cat ./hello.txt",
 		Wait:          true,
 		LogLevel:      "debug",
 		Interpolation: true,
-		Hooks: []HookConfig{
+		Hooks: []plg.HookConfig{
 			{Command: "some-hook-command"},
 			{Command: "another-hook-command"},
 		},
@@ -123,17 +124,17 @@ func TestPluginShouldUnmarshallCorrectly(t *testing.T) {
 			"env2": "env-2",
 			"env3": "env-3",
 		},
-		Watch: []WatchConfig{
+		Watch: []plg.WatchConfig{
 			{
 				Paths: []string{"watch-path-1"},
-				Step: Step{
+				Step: plg.Step{
 					Trigger: "service-2",
 					Env: map[string]string{
 						"env1": "env-1",
 						"env2": "env-2",
 						"env3": "env-3",
 					},
-					Build: Build{
+					Build: plg.Build{
 						Message: "some message",
 						Branch:  "go-rewrite",
 						Commit:  "123",
@@ -147,7 +148,7 @@ func TestPluginShouldUnmarshallCorrectly(t *testing.T) {
 			},
 			{
 				Paths: []string{"watch-path-1"},
-				Step: Step{
+				Step: plg.Step{
 					Command: "echo hello-world",
 					Env: map[string]string{
 						"env1": "env-1",
@@ -158,10 +159,10 @@ func TestPluginShouldUnmarshallCorrectly(t *testing.T) {
 			},
 			{
 				Paths: []string{"watch-path-1", "watch-path-2"},
-				Step: Step{
+				Step: plg.Step{
 					Trigger: "service-1",
 					Label:   "hello",
-					Build: Build{
+					Build: plg.Build{
 						Message: "build message",
 						Branch:  "current branch",
 						Commit:  "commit-hash",
@@ -174,7 +175,7 @@ func TestPluginShouldUnmarshallCorrectly(t *testing.T) {
 						},
 					},
 					Async:     true,
-					Agents:    Agent{Queue: "queue-1"},
+					Agents:    plg.Agent{Queue: "queue-1"},
 					Artifacts: []string{"artifiact-1"},
 					Env: map[string]string{
 						"foo":  "bar",
